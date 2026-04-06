@@ -1,11 +1,493 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        Hello World
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>怪物属性计算器</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .app-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .app-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .app-body {
+            padding: 20px;
+        }
+        .section {
+            background-color: white;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            font-size: 16px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .input-group label {
+            width: 120px;
+            font-weight: 500;
+            color: #34495e;
+        }
+        .input-group input, .input-group select {
+            padding: 8px 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        .btn-calculate {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+        .copy-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+        .result {
+            background-color: white;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+        .result-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-size: 18px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tr:hover {
+            background-color: #e3f2fd;
+        }
+        .player-stats {
+            color: #27ae60;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .monster-stats {
+            color: #e74c3c;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .team-info {
+            color: #f39c12;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .alert-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+        }
+        .error-box {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            font-weight: 500;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+        }
+        @keyframes slideIn {
+            from {transform: translateX(100%); opacity: 0;}
+            to {transform: translateX(0); opacity: 1;}
+        }
+        @keyframes fadeOut {
+            from {opacity: 1;}
+            to {opacity: 0;}
+        }
+        .attribute-value {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            怪物属性计算器
+        </div>
+        <div class="app-body">
+            <div class="section">
+                <div class="section-title">玩家角色属性</div>
+                <div class="input-group">
+                    <label for="playerHp">气血:</label>
+                    <input type="number" id="playerHp" value="20000" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="playerPhyAttack">物伤:</label>
+                    <input type="number" id="playerPhyAttack" value="6000" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="playerMagAttack">法伤:</label>
+                    <input type="number" id="playerMagAttack" value="4500" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="playerDefense">防御:</label>
+                    <input type="number" id="playerDefense" value="4000" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="playerSpeed">速度:</label>
+                    <input type="number" id="playerSpeed" value="1000" min="1">
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">战斗设置</div>
+                <div class="input-group">
+                    <label for="difficultyType">难度类型:</label>
+                    <select id="difficultyType" onchange="toggleDifficultyInput()">
+                        <option value="preset">预设难度</option>
+                        <option value="custom">自定义系数</option>
+                    </select>
+                </div>
+                <div id="presetDifficultyGroup" class="input-group">
+                    <label for="difficulty">难度设置:</label>
+                    <select id="difficulty">
+                        <option value="0.3">新手友好 (30%)</option>
+                        <option value="0.4">简单 (40%)</option>
+                        <option value="0.5" selected>适中 (50%)</option>
+                        <option value="0.65">较难 (65%)</option>
+                        <option value="0.8">困难 (80%)</option>
+                        <option value="1.0">极难 (100%)</option>
+                    </select>
+                </div>
+                <div id="customDifficultyGroup" class="input-group" style="display:none;">
+                    <label for="customDifficulty">自定义系数:</label>
+                    <input type="number" id="customDifficulty" value="0.5" step="0.01" min="0.01">
+                    <span style="margin-left: 10px; font-size: 12px; color: #7f8c8d;">最小值: 0.01，无上限</span>
+                </div>
+                <div class="input-group">
+                    <label for="teamSize">队伍人数:</label>
+                    <select id="teamSize">
+                        <option value="1" selected>单人</option>
+                        <option value="2">2人</option>
+                        <option value="3">3人</option>
+                        <option value="4">4人</option>
+                        <option value="5">5人</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-calculate" onclick="calculate()">计算怪物属性</button>
+            
+            <div id="result" class="result">
+                <div class="result-header">计算结果</div>
+                <div id="playerInfo" class="player-stats"></div>
+                <div id="teamInfo" class="team-info"></div>
+                <div id="monsterInfo" class="monster-stats"></div>
+                <h3 style="margin-top: 15px; color: #2c3e50;">怪物属性详情</h3>
+                <table id="monsterTable">
+                    <thead>
+                        <tr>
+                            <th>属性</th>
+                            <th>数值</th>
+                            <th>操作</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monsterTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="successAlert" class="alert-box">✓ 已复制到剪贴板！</div>
+    <div id="errorAlert" class="error-box">⚠ 输入值无效！</div>
+
+    <script>
+        function toggleDifficultyInput() {
+            const type = document.getElementById('difficultyType').value;
+            const presetGroup = document.getElementById('presetDifficultyGroup');
+            const customGroup = document.getElementById('customDifficultyGroup');
+            
+            if (type === 'preset') {
+                presetGroup.style.display = 'flex';
+                customGroup.style.display = 'none';
+            } else {
+                presetGroup.style.display = 'none';
+                customGroup.style.display = 'flex';
+            }
+        }
+        
+        function showAlert(message, isError = false) {
+            const alertBox = isError ? document.getElementById('errorAlert') : document.getElementById('successAlert');
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+        
+        function calculate() {
+            // 获取玩家属性
+            const playerHp = parseFloat(document.getElementById('playerHp').value);
+            const playerPhyAttack = parseFloat(document.getElementById('playerPhyAttack').value);
+            const playerMagAttack = parseFloat(document.getElementById('playerMagAttack').value);
+            const playerDefense = parseFloat(document.getElementById('playerDefense').value);
+            const playerSpeed = parseFloat(document.getElementById('playerSpeed').value);
+            
+            // 验证输入
+            if (!playerHp || !playerPhyAttack || !playerMagAttack || !playerDefense || !playerSpeed) {
+                showAlert('请输入完整的玩家属性！', true);
+                return;
+            }
+            
+            if (playerHp <= 0 || playerPhyAttack <= 0 || playerMagAttack <= 0 || playerDefense <= 0 || playerSpeed <= 0) {
+                showAlert('属性值必须大于0！', true);
+                return;
+            }
+            
+            // 获取难度系数
+            const difficultyType = document.getElementById('difficultyType').value;
+            let difficulty;
+            
+            if (difficultyType === 'preset') {
+                difficulty = parseFloat(document.getElementById('difficulty').value);
+            } else {
+                difficulty = parseFloat(document.getElementById('customDifficulty').value);
+                
+                // 验证自定义系数最小值
+                if (isNaN(difficulty) || difficulty < 0.01) {
+                    showAlert('自定义难度系数最小值为0.01！', true);
+                    return;
+                }
+            }
+            
+            // 获取设置参数
+            const teamSize = parseInt(document.getElementById('teamSize').value);
+            
+            // 计算怪物属性
+            let monsterHp = Math.round(playerHp * difficulty);
+            let monsterPhyAttack = Math.round(playerDefense * difficulty * 0.8); // 怪物物攻略低于玩家防御
+            let monsterMagAttack = Math.round(playerDefense * difficulty * 0.7); // 怪物法攻略低于玩家防御
+            let monsterDefense = Math.round(playerDefense * difficulty * 0.6); // 怪物防御低于玩家防御
+            let monsterSpeed = Math.round(playerSpeed * difficulty * 0.9); // 怪物速度略慢于玩家
+            
+            // 如果队伍大于1人，按比例调整怪物属性（但不是线性增加，增加挑战性）
+            if (teamSize > 1) {
+                // 按照设定，多角色参与战斗时怪物属性适当增加
+                // 可以考虑增加血量和伤害，但不完全按倍数增加
+                const teamMultiplier = 1 + (teamSize - 1) * 0.4; // 每增加一人增加40%的强度
+                monsterHp = Math.round(monsterHp * teamMultiplier);
+                monsterPhyAttack = Math.round(monsterPhyAttack * (1 + (teamSize - 1) * 0.3));
+                monsterMagAttack = Math.round(monsterMagAttack * (1 + (teamSize - 1) * 0.3));
+                // 防御和速度不随队伍人数大幅增加
+            }
+            
+            // 显示玩家信息
+            document.getElementById('playerInfo').innerHTML = `
+                <strong>玩家角色属性:</strong><br>
+                气血: <span class="attribute-value">${playerHp.toLocaleString()}</span>, 物伤: <span class="attribute-value">${playerPhyAttack.toLocaleString()}</span>, 
+                法伤: <span class="attribute-value">${playerMagAttack.toLocaleString()}</span>, 防御: <span class="attribute-value">${playerDefense.toLocaleString()}</span>, 
+                速度: <span class="attribute-value">${playerSpeed.toLocaleString()}</span>
+            `;
+            
+            // 显示队伍信息
+            document.getElementById('teamInfo').innerHTML = `
+                <strong>队伍信息:</strong> ${teamSize}人队伍
+            `;
+            
+            // 显示难度信息
+            let difficultyText;
+            if (difficultyType === 'preset') {
+                difficultyText = getDifficultyText(difficulty);
+            } else {
+                difficultyText = `自定义 (${(difficulty * 100).toFixed(2)}%)`;
+            }
+            
+            // 显示怪物信息摘要
+            document.getElementById('monsterInfo').innerHTML = `
+                <strong>怪物属性 (平衡调整后):</strong><br>
+                气血: <span class="attribute-value">${monsterHp.toLocaleString()}</span>, 物理攻击: <span class="attribute-value">${monsterPhyAttack.toLocaleString()}</span>, 
+                法术攻击: <span class="attribute-value">${monsterMagAttack.toLocaleString()}</span>, 防御: <span class="attribute-value">${monsterDefense.toLocaleString()}</span>, 
+                速度: <span class="attribute-value">${monsterSpeed.toLocaleString()}</span><br><br>
+                <strong>难度设置:</strong> ${difficultyText}
+            `;
+            
+            // 更新怪物属性表格
+            const tableBody = document.getElementById('monsterTableBody');
+            tableBody.innerHTML = '';
+            
+            const attributes = [
+                { name: '气血', value: monsterHp, desc: '生存能力' },
+                { name: '物理攻击', value: monsterPhyAttack, desc: '物理伤害' },
+                { name: '法术攻击', value: monsterMagAttack, desc: '法术伤害' },
+                { name: '防御', value: monsterDefense, desc: '减少伤害' },
+                { name: '速度', value: monsterSpeed, desc: '出手顺序' }
+            ];
+            
+            attributes.forEach(attr => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${attr.name}</td>
+                    <td class="attribute-value">${attr.value.toLocaleString()}</td>
+                    <td><button class="copy-btn" onclick="copyToClipboard(${attr.value})">复制</button></td>
+                    <td>${attr.desc}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // 显示结果区域
+            document.getElementById('result').style.display = 'block';
+        }
+        
+        function copyToClipboard(value) {
+            // 使用现代 Clipboard API（如果可用）
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(value.toString()).then(() => {
+                    showAlert('✓ 已复制到剪贴板！');
+                }).catch(err => {
+                    // 如果失败，回退到传统方法
+                    fallbackCopyTextToClipboard(value);
+                });
+            } else {
+                fallbackCopyTextToClipboard(value);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(value) {
+            const textArea = document.createElement("textarea");
+            textArea.value = value.toString();
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if(successful) {
+                    showAlert('✓ 已复制到剪贴板！');
+                } else {
+                    showAlert('✗ 复制失败！', true);
+                }
+            } catch (err) {
+                showAlert('✗ 复制失败！', true);
+            }
+            document.body.removeChild(textArea);
+        }
+        
+        function getDifficultyText(diff) {
+            switch(diff) {
+                case 0.3: return '新手友好 (30%)';
+                case 0.4: return '简单 (40%)';
+                case 0.5: return '适中 (50%)';
+                case 0.65: return '较难 (65%)';
+                case 0.8: return '困难 (80%)';
+                case 1.0: return '极难 (100%)';
+                default: return `${Math.round(diff*100)}%`;
+            }
+        }
+        
+        // 页面加载时执行一次计算
+        window.onload = function() {
+            toggleDifficultyInput();
+            calculate();
+        };
+    </script>
+</body>
 </html>
